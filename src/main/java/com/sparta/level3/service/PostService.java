@@ -1,11 +1,14 @@
 package com.sparta.level3.service;///
 
+import com.sparta.level3.dto.CommentResponseDto;
 import com.sparta.level3.dto.DeleteReponseDto;
 import com.sparta.level3.dto.PostRequestDto;
 import com.sparta.level3.dto.PostResponseDto;
+import com.sparta.level3.entity.Comment;
 import com.sparta.level3.entity.Post;
 import com.sparta.level3.entity.User;
 import com.sparta.level3.jwt.JwtUtil;
+import com.sparta.level3.repository.CommentRepository;
 import com.sparta.level3.repository.PostRepository;
 import com.sparta.level3.repository.UserRepository;
 import io.jsonwebtoken.Claims;
@@ -15,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -22,6 +26,7 @@ import java.util.List;
 public class PostService {
     private final PostRepository postRepository;
     private final UserRepository userRepository;
+    private final CommentRepository commentRepository;
     private final JwtUtil jwtUtil;
 
     // 1. 토큰 있는 경우에만 게시글 생성
@@ -59,11 +64,43 @@ public class PostService {
     public List<PostResponseDto> getPostList(){
         List<Post> postList = postRepository.findAllByOrderByModifiedAtDesc();
         List<PostResponseDto> responseDto = new ArrayList<>();
+//
+//        for (Post post : postList) {
+//            List<Comment> commentList = commentRepository.findAllByPosts(post);
+//            post.setCommentList(commentList);
+//            responseDto.add(new PostResponseDto(post));
+//        }
+//        return responseDto;
+        List<PostResponseDto> responseDtoList = new ArrayList<>();
 
         for (Post post : postList) {
-            responseDto.add(new PostResponseDto(post));
+            List<Comment> commentLists = commentRepository.findAllByPosts(post);
+
+            // 댓글 정보를 DTO로 변환
+            List<CommentResponseDto> commentoList = new ArrayList<>();
+            for (Comment comment : commentLists) {
+                CommentResponseDto commentResponseDto = new CommentResponseDto(comment);
+                commentResponseDto.setId(comment.getId());
+                commentResponseDto.setContent(comment.getContent());
+                // 댓글과 관련된 필드들을 설정
+                commentoList.add(commentResponseDto);
+            }
+
+            // 게시글 정보와 댓글 정보를 포함한 DTO 생성
+            PostResponseDto postResponseDto = new PostResponseDto();
+            postResponseDto.setId(post.getId());
+            postResponseDto.setTitle(post.getTitle());
+            postResponseDto.setUsername(post.getUsername());
+            postResponseDto.setContent(post.getContent());
+            postResponseDto.setCreatedAt(post.getCreatedAt());
+            postResponseDto.setModifiedAt(post.getModifiedAt());
+            // 게시글과 관련된 필드들을 설정
+            postResponseDto.setCommentList(commentoList);
+
+            responseDtoList.add(postResponseDto);
         }
-        return responseDto;
+
+        return responseDtoList;
     }
 
     // 3. 선택한 게시글 조회 -> 예외처리("게시글이 존재하지 않습니다")

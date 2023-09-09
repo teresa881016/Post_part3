@@ -23,6 +23,7 @@ public class PostController {
 		return postService.createPost(requestDto, request);
 	}
 	// 2. 게시글 전체 목록 조회
+	// 댓글까지 전체 조회
 	@GetMapping("/post")
 	public List<PostResponseDto> getPostList(){
 		return postService.getPostList();

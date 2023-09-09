@@ -20,6 +20,7 @@ public class CommentController {
         return commentService.createComment(requestDto, request, id);
     }
 
+
     // 2. 댓글 수정
     @PutMapping("/comment/{id}")
     public CommentResponseDto update(@PathVariable Long id, @RequestBody CommentRequestDto requestDto, HttpServletRequest request) {

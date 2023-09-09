@@ -72,7 +72,6 @@ public class CommentService {
             } else {
                 throw new IllegalArgumentException("Token Error");
             }
-
             // 토큰에서 가져온 사용자 정보를 사용하여 DB 조회 -> 로그인 안했으면 로그인 하라고 메시지
             Comment comment = commentRepository.findById(id).orElseThrow(
                     () -> new IllegalArgumentException("로그인 해주세요")
